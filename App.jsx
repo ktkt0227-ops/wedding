@@ -272,15 +272,6 @@ function RSVP() {
   const [submitError, setSubmitError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const sectionRef = useRef(null);
-  const submittedRef = useRef(false);
-  const finalizedRef = useRef(false);
-  const fallbackTimerRef = useRef(null);
-
-  useEffect(() => {
-    return () => {
-      if (fallbackTimerRef.current) window.clearTimeout(fallbackTimerRef.current);
-    };
-  }, []);
 
   const isAttend = formData.attendance === 'ご出席';
   const isDecline = formData.attendance === 'ご欠席';
@@ -320,51 +311,55 @@ function RSVP() {
     sectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
-  const finalizeSubmission = () => {
-    if (finalizedRef.current) return;
-    finalizedRef.current = true;
-    submittedRef.current = false;
-
-    if (fallbackTimerRef.current) {
-      window.clearTimeout(fallbackTimerRef.current);
-      fallbackTimerRef.current = null;
-    }
-
-    setStep('thanks');
-    setFormData(initialFormData);
-    setIsSubmitting(false);
-  };
-
-  const handleGoogleFrameLoad = () => {
-    // about:blank の初回loadでは何もしない。
-    // Google FormsへのPOST後にiframeが再読み込みされた時だけ完了扱いにする。
-    if (submittedRef.current) finalizeSubmission();
-  };
-
-  const handleNativeSubmit = (event) => {
-    setSubmitError('');
-
+  const submitResponse = async () => {
     if (!appsScriptConfig.endpoint) {
-      event.preventDefault();
       setSubmitError('回答送信先の設定が完了していません。');
       return;
     }
 
-    if (isSubmitting) {
-      event.preventDefault();
-      return;
+    if (isSubmitting) return;
+
+    setSubmitError('');
+    setIsSubmitting(true);
+
+    const params = new URLSearchParams();
+    params.set('attendance', formData.attendance);
+    params.set('name', formData.name.trim());
+    params.set('furigana', formData.furigana.trim());
+    params.set('romaji', formData.romaji.trim());
+
+    if (isAttend) {
+      params.set('allergies', formData.allergies);
+      if (formData.allergies === 'あり') {
+        params.set('allergyDetails', formData.allergyDetails.trim());
+      }
+      if (formData.other.trim()) {
+        params.set('other', formData.other.trim());
+      }
     }
 
-    // preventDefault はしない。
-    // ブラウザ標準の form POST で Apps Script Web App に送信する。
-    // Apps Script 側が Google FormResponse を作成して submit() するため、
-    // Google Forms の formResponse へ直接POSTする方式には依存しない。
-    setIsSubmitting(true);
-    submittedRef.current = true;
-    finalizedRef.current = false;
+    if (isDecline && formData.message.trim()) {
+      params.set('message', formData.message.trim());
+    }
 
-    // iframe の load が環境依存で遅れる場合に備え、UIだけは復帰させる。
-    fallbackTimerRef.current = window.setTimeout(finalizeSubmission, 2500);
+    try {
+      // Apps Script Web App は別オリジンのため、no-cors の simple POST で送信する。
+      // レスポンス本文は読めないが、リクエスト自体は doPost(e) に届く。
+      await fetch(appsScriptConfig.endpoint, {
+        method: 'POST',
+        mode: 'no-cors',
+        body: params,
+      });
+
+      setStep('thanks');
+      setFormData(initialFormData);
+      sectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } catch (error) {
+      console.error('RSVP submit failed:', error);
+      setSubmitError('送信できませんでした。通信環境をご確認のうえ、もう一度お試しください。');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
 
@@ -511,60 +506,24 @@ function RSVP() {
 
                 {submitError && <p className="submit-error">{submitError}</p>}
 
-                <form
-                  className="google-native-form"
-                  action={appsScriptConfig.endpoint}
-                  method="POST"
-                  target="wedding-rsvp-submit-frame"
-                  acceptCharset="UTF-8"
-                  onSubmit={handleNativeSubmit}
-                >
-                  <input type="hidden" name="attendance" value={formData.attendance} />
-                  <input type="hidden" name="name" value={formData.name.trim()} />
-                  <input type="hidden" name="furigana" value={formData.furigana.trim()} />
-                  <input type="hidden" name="romaji" value={formData.romaji.trim()} />
-
-                  {isAttend && (
-                    <>
-                      <input type="hidden" name="allergies" value={formData.allergies} />
-                      {formData.allergies === 'あり' && (
-                        <input type="hidden" name="allergyDetails" value={formData.allergyDetails.trim()} />
-                      )}
-                      {formData.other.trim() && (
-                        <input type="hidden" name="other" value={formData.other.trim()} />
-                      )}
-                    </>
-                  )}
-
-                  {isDecline && formData.message.trim() && (
-                    <input type="hidden" name="message" value={formData.message.trim()} />
-                  )}
-
+                <div className="google-native-form">
                   <div className="confirmation-actions">
                     <button type="button" className="secondary-action" onClick={() => setStep('form')} disabled={isSubmitting}>
                       <ArrowLeft size={15} strokeWidth={1.2} />
                       <span>修正する</span>
                     </button>
-                    <button type="submit" className="primary-action" disabled={isSubmitting}>
+                    <button type="button" className="primary-action" onClick={submitResponse} disabled={isSubmitting}>
                       <span>{isSubmitting ? '送信中…' : 'この内容で回答する'}</span>
                       {!isSubmitting && <ArrowRight size={16} strokeWidth={1.2} />}
                     </button>
                   </div>
-                </form>
+                </div>
               </div>
             )}
           </>
         )}
       </div>
       </section>
-      <iframe
-        name="wedding-rsvp-submit-frame"
-        title="Wedding RSVP submission target"
-        className="google-submit-frame"
-        aria-hidden="true"
-        tabIndex="-1"
-        onLoad={handleGoogleFrameLoad}
-      />
     </>
   );
 }
