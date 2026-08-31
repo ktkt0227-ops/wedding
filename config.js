@@ -49,5 +49,5 @@ export const weddingConfig = {
 };
 
 export const appsScriptConfig = {
-  endpoint: 'https://script.google.com/macros/s/AKfycbzpLsmCBR6eduFgCijzIueKRcyIGYzEQOLxRlSzgMANB9oUTtLeMT3Hnql75eUM2ptOYA/exec',
+  endpoint: 'https://script.google.com/macros/s/AKfycbzmPoQ2GLJ4zpcSHlB23nRYGbuokp4lCOhm65v8TPjQN6ArcJ-dsfkKQlrzgrP95-kJxQ/exec',
 };

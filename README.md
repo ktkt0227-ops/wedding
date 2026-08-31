@@ -3,7 +3,7 @@
 This build sends RSVP data to the deployed Google Apps Script Web App using a cross-origin simple POST (`fetch(..., { mode: 'no-cors' })`).
 
 Endpoint:
-https://script.google.com/macros/s/AKfycbzpLsmCBR6eduFgCijzIueKRcyIGYzEQOLxRlSzgMANB9oUTtLeMT3Hnql75eUM2ptOYA/exec
+https://script.google.com/macros/s/AKfycbzmPoQ2GLJ4zpcSHlB23nRYGbuokp4lCOhm65v8TPjQN6ArcJ-dsfkKQlrzgrP95-kJxQ/exec
 
 ## Important
 - Google Form direct POST is not used.
