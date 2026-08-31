@@ -242,6 +242,14 @@ function FinalStill() {
   );
 }
 
+function Choice({ active, children, onClick }) {
+  return (
+    <button type="button" className={`choice ${active ? 'is-active' : ''}`} onClick={onClick}>
+      <span>{children}</span>
+    </button>
+  );
+}
+
 function Field({ label, required, error, children }) {
   return (
     <div className={`form-field ${error ? 'has-error' : ''}`}>
