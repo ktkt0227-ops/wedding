@@ -1374,19 +1374,103 @@ body.modal-lock {
   }
 }
 
+/* Supabase RSVP transport */
+.rsvp-submit-actions { margin: 0; }
 
-/* Native Google Forms bridge — real browser form POST, not fetch */
-.google-native-form {
-  margin: 0;
+.supabase-test-page {
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  padding: 28px;
+  background: #151512;
+  color: #efe9dc;
 }
 
-.google-submit-frame {
-  position: fixed;
-  width: 1px;
-  height: 1px;
-  border: 0;
-  opacity: 0;
-  pointer-events: none;
-  left: -9999px;
-  top: -9999px;
+.supabase-test-card {
+  width: min(100%, 560px);
+  border: 1px solid rgba(239, 233, 220, .18);
+  padding: clamp(30px, 6vw, 54px);
+}
+
+.supabase-test-card > span {
+  display: block;
+  font-family: var(--sans);
+  font-size: 9px;
+  letter-spacing: .22em;
+  opacity: .55;
+}
+
+.supabase-test-card h1 {
+  margin: 20px 0 18px;
+  font-family: var(--jp);
+  font-size: clamp(26px, 6vw, 42px);
+  font-weight: 400;
+}
+
+.supabase-test-card > p {
+  margin: 0 0 28px;
+  font-size: 12px;
+  line-height: 2;
+  opacity: .72;
+}
+
+.supabase-test-card dl {
+  margin: 0 0 28px;
+  border-top: 1px solid rgba(239, 233, 220, .12);
+}
+
+.supabase-test-card dl div {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 18px;
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(239, 233, 220, .12);
+}
+
+.supabase-test-card dt {
+  font-family: var(--sans);
+  font-size: 9px;
+  letter-spacing: .15em;
+  opacity: .5;
+}
+
+.supabase-test-card dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+  font-family: var(--sans);
+  font-size: 11px;
+}
+
+.supabase-test-card button {
+  width: 100%;
+  padding: 16px 18px;
+  border: 1px solid rgba(239, 233, 220, .34);
+  border-radius: 0;
+  background: #efe9dc;
+  color: #20221d;
+  cursor: pointer;
+  font-family: var(--jp);
+  font-size: 11px;
+  letter-spacing: .08em;
+}
+
+.supabase-test-card button:disabled { opacity: .45; cursor: default; }
+
+.supabase-test-result {
+  margin: 20px 0 0 !important;
+  padding: 14px 0;
+  font-size: 11px !important;
+}
+
+.supabase-test-result.is-success { color: #d7e4c9; }
+.supabase-test-result.is-error { color: #efb5aa; }
+
+.supabase-test-card > a {
+  display: inline-block;
+  margin-top: 26px;
+  color: inherit;
+  font-family: var(--jp);
+  font-size: 10px;
+  text-underline-offset: 4px;
+  opacity: .65;
 }

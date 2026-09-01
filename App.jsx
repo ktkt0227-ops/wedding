@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ArrowDown, ArrowLeft, ArrowRight, ExternalLink } from 'lucide-react';
-import { appsScriptConfig, weddingConfig } from './config';
+import { weddingConfig } from './config';
+import { submitRsvp } from './supabase';
 
 const initialFormData = {
   attendance: '',
@@ -312,43 +313,21 @@ function RSVP() {
   };
 
   const submitResponse = async () => {
-    if (!appsScriptConfig.endpoint) {
-      setSubmitError('回答送信先の設定が完了していません。');
-      return;
-    }
-
     if (isSubmitting) return;
 
     setSubmitError('');
     setIsSubmitting(true);
 
-    const params = new URLSearchParams();
-    params.set('attendance', formData.attendance);
-    params.set('name', formData.name.trim());
-    params.set('furigana', formData.furigana.trim());
-    params.set('romaji', formData.romaji.trim());
-
-    if (isAttend) {
-      params.set('allergies', formData.allergies);
-      if (formData.allergies === 'あり') {
-        params.set('allergyDetails', formData.allergyDetails.trim());
-      }
-      if (formData.other.trim()) {
-        params.set('other', formData.other.trim());
-      }
-    }
-
-    if (isDecline && formData.message.trim()) {
-      params.set('message', formData.message.trim());
-    }
-
     try {
-      // Apps Script Web App は別オリジンのため、no-cors の simple POST で送信する。
-      // レスポンス本文は読めないが、リクエスト自体は doPost(e) に届く。
-      await fetch(appsScriptConfig.endpoint, {
-        method: 'POST',
-        mode: 'no-cors',
-        body: params,
+      await submitRsvp({
+        attendance: formData.attendance,
+        name: formData.name.trim(),
+        furigana: formData.furigana.trim(),
+        romaji: formData.romaji.trim(),
+        allergies: formData.allergies,
+        allergyDetails: formData.allergyDetails.trim(),
+        other: formData.other.trim(),
+        message: formData.message.trim(),
       });
 
       setStep('thanks');
@@ -356,7 +335,9 @@ function RSVP() {
       sectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     } catch (error) {
       console.error('RSVP submit failed:', error);
-      setSubmitError('送信できませんでした。通信環境をご確認のうえ、もう一度お試しください。');
+      setSubmitError(
+        error?.message || '送信できませんでした。通信環境をご確認のうえ、もう一度お試しください。',
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -506,7 +487,7 @@ function RSVP() {
 
                 {submitError && <p className="submit-error">{submitError}</p>}
 
-                <div className="google-native-form">
+                <div className="rsvp-submit-actions">
                   <div className="confirmation-actions">
                     <button type="button" className="secondary-action" onClick={() => setStep('form')} disabled={isSubmitting}>
                       <ArrowLeft size={15} strokeWidth={1.2} />

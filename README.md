@@ -1,19 +1,19 @@
-# Kosuke & Kokoro Wedding Invitation — Apps Script fetch build
+# Kosuke & Kokoro Wedding — Supabase RSVP configured
 
-This build sends RSVP data to the deployed Google Apps Script Web App using a cross-origin simple POST (`fetch(..., { mode: 'no-cors' })`).
+この版は Supabase Project URL / Publishable key を `src/supabase.js` に設定済みです。Bolt側の環境変数設定は不要です。
 
-Endpoint:
-https://script.google.com/macros/s/AKfycbzmPoQ2GLJ4zpcSHlB23nRYGbuokp4lCOhm65v8TPjQN6ArcJ-dsfkKQlrzgrP95-kJxQ/exec
+## 最初に一度だけ必要
 
-## Important
-- Google Form direct POST is not used.
-- Hidden iframe submission is not used.
-- The Apps Script `doPost(e)` should appear in Apps Script Executions whenever the website's final submit button is pressed.
-- Popup/modal is intentionally not included in this diagnostic build.
+Supabase Dashboard > SQL Editor で `supabase/schema.sql` を全文実行してください。これで `public.wedding_rsvp` テーブルと、ゲストが INSERT だけできるRLSポリシーを作成します。
 
-## Test
-1. Publish this build.
-2. Fill RSVP and reach confirmation.
-3. Press `この内容で回答する` once.
-4. Check Apps Script > Executions. `doPost` should appear.
-5. Confirm the response appears in the Google Form.
+## 接続テスト
+
+Publish後のURL末尾に `?rsvp-test=1` を付けて開き、「テスト回答を1件保存する」を押してください。Supabase Dashboard > Table Editor > wedding_rsvp に `SUPABASE接続テスト` が追加されれば接続成功です。
+
+## 本番
+
+接続テストが成功したら通常URLでRSVPを1件テストしてください。ポップアップは回答保存が安定してから追加します。
+
+## Security
+
+このコードに入っているのはブラウザ公開用途の Publishable key のみです。Secret / service_role key は絶対にフロントへ入れないでください。
