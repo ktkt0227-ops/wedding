@@ -1,4 +1,4 @@
-window.__WEDDING_BUILD__ = 'SUPABASE-RSVP-20260901';
+window.__WEDDING_BUILD__ = 'SUPABASE-RSVP-FIX-DYNAMIC-STEPS-20260901';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';

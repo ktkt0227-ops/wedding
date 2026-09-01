@@ -1236,6 +1236,20 @@ footer {
   }
 }
 
+
+/* RSVP state transitions are mounted dynamically after the initial reveal observer runs.
+   Keep them visible and animate locally instead of relying on [data-reveal]. */
+.step-visible {
+  opacity: 1;
+  transform: none;
+  animation: rsvpStepIn 420ms cubic-bezier(.2,.72,.22,1) both;
+}
+
+@keyframes rsvpStepIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 /* Final — post-submit confirmation modal */
 body.modal-lock {
   overflow: hidden;

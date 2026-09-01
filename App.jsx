@@ -367,7 +367,7 @@ function RSVP() {
       <section className="rsvp" ref={sectionRef} id="rsvp">
       <div className="rsvp-shell">
         {step === 'thanks' ? (
-          <div className="thanks" data-reveal>
+          <div className="thanks step-visible">
             <span className="eyebrow">R.S.V.P.</span>
             <h2>THANK YOU</h2>
             <p>ご回答ありがとうございました</p>
@@ -474,7 +474,7 @@ function RSVP() {
             )}
 
             {step === 'confirm' && (
-              <div className="confirmation" data-reveal>
+              <div className="confirmation step-visible">
                 <span className="eyebrow">YOUR RESPONSE</span>
                 <div className="confirmation-list">
                   {confirmationRows.map(([label, value]) => (
