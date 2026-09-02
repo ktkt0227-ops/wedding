@@ -14,6 +14,20 @@ const initialFormData = {
   message: '',
 };
 
+const dressCodeColors = [
+  { name: 'Navy', hex: '#22304A' },
+  { name: 'Deep Green', hex: '#31533B' },
+  { name: 'Sage', hex: '#A4B292' },
+  { name: 'Plum', hex: '#5E394B' },
+  { name: 'Oxblood', hex: '#612F30' },
+  { name: 'Wine', hex: '#821B36' },
+  { name: 'Blush', hex: '#C98F95' },
+  { name: 'Mustard', hex: '#C79A3B' },
+  { name: 'Champagne', hex: '#C6A786' },
+  { name: 'Taupe', hex: '#92745D' },
+  { name: 'Brown', hex: '#604033' },
+];
+
 function useReveal() {
   useEffect(() => {
     const nodes = [...document.querySelectorAll('[data-reveal]')];
@@ -229,20 +243,6 @@ function CinematicBreak() {
   );
 }
 
-function FinalStill() {
-  return (
-    <section className="final-still" aria-label="新郎新婦のウェディングフォト">
-      <img
-        src={weddingConfig.images.ending}
-        alt="ボートに座る新郎新婦"
-        loading="lazy"
-        decoding="async"
-      />
-      <div className="final-still-overlay" />
-    </section>
-  );
-}
-
 function Choice({ active, children, onClick }) {
   return (
     <button type="button" className={`choice ${active ? 'is-active' : ''}`} onClick={onClick}>
@@ -286,10 +286,9 @@ function RSVP() {
     const next = {};
     if (!formData.attendance) next.attendance = 'ご出席またはご欠席をお選びください';
     if (!formData.name.trim()) next.name = 'お名前をご入力ください';
-    if (!formData.furigana.trim()) next.furigana = 'ふりがなをご入力ください';
-    if (!formData.romaji.trim()) next.romaji = 'ローマ字表記をご入力ください';
-
     if (isAttend) {
+      if (!formData.furigana.trim()) next.furigana = 'ふりがなをご入力ください';
+      if (!formData.romaji.trim()) next.romaji = 'ローマ字表記をご入力ください';
       if (!formData.allergies) next.allergies = 'アレルギーの有無をお選びください';
       if (formData.allergies === 'あり' && !formData.allergyDetails.trim()) {
         next.allergyDetails = '対象となる食材をご入力ください';
@@ -312,6 +311,14 @@ function RSVP() {
     sectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
+  const editResponse = () => {
+    setSubmitError('');
+    setStep('form');
+    requestAnimationFrame(() => {
+      sectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  };
+
   const submitResponse = async () => {
     if (isSubmitting) return;
 
@@ -322,8 +329,8 @@ function RSVP() {
       await submitRsvp({
         attendance: formData.attendance,
         name: formData.name.trim(),
-        furigana: formData.furigana.trim(),
-        romaji: formData.romaji.trim(),
+        furigana: isAttend ? formData.furigana.trim() : '',
+        romaji: isAttend ? formData.romaji.trim() : '',
         allergies: formData.allergies,
         allergyDetails: formData.allergyDetails.trim(),
         other: formData.other.trim(),
@@ -357,8 +364,6 @@ function RSVP() {
     : [
         ['ご出欠', formData.attendance],
         ['お名前', formData.name],
-        ['ふりがな', formData.furigana],
-        ['ローマ字', formData.romaji],
         ...(formData.message ? [['メッセージ', formData.message]] : []),
       ];
 
@@ -388,7 +393,7 @@ function RSVP() {
             </div>
 
             {step === 'form' && (
-              <div className="rsvp-form" data-reveal>
+              <div className="rsvp-form step-visible">
                 <div className={`attendance-block ${errors.attendance ? 'has-error' : ''}`}>
                   <span className="field-label">ご出欠 <small>必須</small></span>
                   <div className="choice-row">
@@ -412,22 +417,26 @@ function RSVP() {
                       />
                     </Field>
 
-                    <Field label="ふりがな" required error={errors.furigana}>
-                      <input value={formData.furigana} onChange={(event) => update('furigana', event.target.value)} autoComplete="off" />
-                    </Field>
-
-                    <Field label="ローマ字表記" required error={errors.romaji}>
-                      <input
-                        value={formData.romaji}
-                        onChange={(event) => update('romaji', event.target.value)}
-                        autoCapitalize="words"
-                        autoComplete="off"
-                        placeholder="例：KOSUKE TAKAHASHI"
-                      />
-                    </Field>
-
                     {isAttend && (
                       <>
+                        <Field label="ふりがな" required error={errors.furigana}>
+                          <input
+                            value={formData.furigana}
+                            onChange={(event) => update('furigana', event.target.value)}
+                            autoComplete="off"
+                          />
+                        </Field>
+
+                        <Field label="ローマ字表記" required error={errors.romaji}>
+                          <input
+                            value={formData.romaji}
+                            onChange={(event) => update('romaji', event.target.value)}
+                            autoCapitalize="words"
+                            autoComplete="off"
+                            placeholder="例：KOSUKE TAKAHASHI"
+                          />
+                        </Field>
+
                         <div className={`form-field ${errors.allergies ? 'has-error' : ''}`}>
                           <span className="field-label">食物アレルギー <small>必須</small></span>
                           <div className="choice-row choice-row--compact">
@@ -489,7 +498,7 @@ function RSVP() {
 
                 <div className="rsvp-submit-actions">
                   <div className="confirmation-actions">
-                    <button type="button" className="secondary-action" onClick={() => setStep('form')} disabled={isSubmitting}>
+                    <button type="button" className="secondary-action" onClick={editResponse} disabled={isSubmitting}>
                       <ArrowLeft size={15} strokeWidth={1.2} />
                       <span>修正する</span>
                     </button>
@@ -506,6 +515,53 @@ function RSVP() {
       </div>
       </section>
     </>
+  );
+}
+
+function ClosingDressCode() {
+  return (
+    <section className="closing-dress-code" aria-labelledby="dress-code-title">
+      <div className="closing-dress-shell">
+        <div className="section-index closing-section-index" data-reveal>
+          <span>04</span>
+          <span>DRESS CODE</span>
+        </div>
+
+        <div className="dress-code-copy" data-reveal>
+          <span className="eyebrow">COLOR PALETTE</span>
+          <h2 id="dress-code-title">Dress Code</h2>
+          <p>
+            当日は下記のカラーをテーマにしております。<br />
+            ご無理のない範囲で、お好きなカラーを装いに取り入れていただけますと幸いです。
+          </p>
+        </div>
+
+        <div className="dress-palette" data-reveal aria-label="ドレスコードのカラーパレット">
+          {dressCodeColors.map((color) => (
+            <span
+              className="dress-swatch"
+              key={color.name}
+              style={{ backgroundColor: color.hex }}
+              title={color.name}
+              aria-label={color.name}
+            />
+          ))}
+        </div>
+
+        <p className="dress-code-note" data-reveal>
+          ※もちろん、ご自身らしい装いでご参列ください
+        </p>
+
+        <div className="closing-thanks" data-reveal>
+          <span className="eyebrow">THANK YOU</span>
+          <p>
+            当日お会いできますことを<br />
+            心より楽しみにしております
+          </p>
+          <small>KOSUKE &amp; KOKORO · 14 NOVEMBER 2026</small>
+        </div>
+      </div>
+    </section>
   );
 }
 
@@ -536,7 +592,7 @@ export default function App() {
         <WeddingDetails />
         <CinematicBreak />
         <RSVP />
-        <FinalStill />
+        <ClosingDressCode />
       </main>
       <Footer />
       <div className="film-grain" aria-hidden="true" />

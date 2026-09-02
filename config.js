@@ -43,7 +43,6 @@ export const weddingConfig = {
   images: {
     hero: 'https://res.cloudinary.com/edkggmz8/image/upload/f_auto,q_auto,w_1800/v1788179306/IMG_4916.jpg',
     story: 'https://res.cloudinary.com/edkggmz8/image/upload/f_auto,q_auto,w_1800/v1788179306/IMG_4917.jpg',
-    ending: 'https://res.cloudinary.com/edkggmz8/image/upload/f_auto,q_auto,w_1800/v1788179306/IMG_4918.jpg',
     og: 'https://res.cloudinary.com/edkggmz8/image/upload/v1788179306/IMG_4916.jpg',
   },
 };

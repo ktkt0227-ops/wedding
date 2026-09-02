@@ -37,8 +37,8 @@ export async function submitRsvp(payload) {
       body: JSON.stringify({
         attendance: payload.attendance,
         name: payload.name,
-        furigana: payload.furigana,
-        romaji: payload.romaji,
+        furigana: payload.attendance === 'ご出席' ? payload.furigana || null : null,
+        romaji: payload.attendance === 'ご出席' ? payload.romaji || null : null,
         allergies: payload.attendance === 'ご出席' ? payload.allergies || null : null,
         allergy_details:
           payload.attendance === 'ご出席' && payload.allergies === 'あり'
